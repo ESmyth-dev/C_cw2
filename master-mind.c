@@ -275,8 +275,16 @@ void showSeq(int *seq) {
 /* counts how many entries in seq2 match entries in seq1 */
 /* returns exact and approximate matches, either both encoded in one value, */
 /* or as a pointer to a pair of values */
-int /* or int* */ countMatches(int *seq1, int *seq2) {
-  /* ***  COMPLETE the code here  ***  */
+int* countMatches(int *seq1, int *seq2) {
+  int exact = 0;
+  int approximate = 0;
+  int *seq3
+  for (int i = 0; i < seqlen; i++)
+  {
+   if(seq1[i]==seq2[i]){
+    exact++;
+   } 
+  }
 }
 
 /* show the results from calling countMatches on seq1 and seq1 */
