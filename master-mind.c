@@ -278,13 +278,28 @@ void showSeq(int *seq) {
 int* countMatches(int *seq1, int *seq2) {
   int exact = 0;
   int approximate = 0;
-  int *seq3
+  int *seq3;
+  seq3 = calloc(seqlen,sizeof(int));
   for (int i = 0; i < seqlen; i++)
   {
    if(seq1[i]==seq2[i]){
     exact++;
-   } 
+   } else{
+    seq3[i] = seq1[i];
+   }
   }
+  for (int i = 0; i < seqlen; i++)
+  {
+    for (int j = 0; j < seqlen; j++)
+    {
+      if(seq3[i] == seq2[j]){
+        approximate++;
+        break;
+      }      
+    }
+    
+  }
+  
 }
 
 /* show the results from calling countMatches on seq1 and seq1 */
