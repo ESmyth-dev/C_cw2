@@ -289,7 +289,8 @@ int* countMatches(int *seq1, int *seq2) {
 
 /* show the results from calling countMatches on seq1 and seq1 */
 void showMatches(int /* or int* */ code, /* only for debugging */ int *seq1, int *seq2, /* optional, to control layout */ int lcd_format) {
-  /* ***  COMPLETE the code here  ***  */
+  int* matchesResults = countMatches(*seq1, *seq2);
+  printf("There were %d exact matches and %d approximate matches.\n", matchesResults[0], matchesResults[1]);
 }
 
 /* parse an integer value as a list of digits, and put them into @seq@ */
