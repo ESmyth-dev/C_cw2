@@ -303,7 +303,8 @@ int* countMatches(int *seq1, int *seq2) {
 }
 
 /* show the results from calling countMatches on seq1 and seq1 */
-void showMatches(int /* or int* */ code, /* only for debugging */ int *seq1, int *seq2, /* optional, to control layout */ int lcd_format) {
+void showMatches(int /* or int* */ code, /* only for debugging */ int *seq1, int *seq2, /* optional, to control layout */ int lcd_format)
+{
   int* matchesResults = calloc(2, sizeof(int));
   matchesResults = countMatches(*seq1, *seq2);
   printf("There were %d exact matches and %d approximate matches.\n", matchesResults[0], matchesResults[1]);
@@ -322,10 +323,16 @@ void readSeq(int *seq, int val)
   }
 }
 
-/* read a guess sequence fron stdin and store the values in arr */
+/* read a guess sequence from stdin and store the values in arr */
 /* only needed for testing the game logic, without button input */
-int readNum(int max) {
-  /* ***  COMPLETE the code here  ***  */
+int readNum(int max)
+{
+  int* arr = calloc(seqlen, sizeof(int));
+
+  int guess;
+  scanf("%d", guess); // take the guess sequence as a user input
+
+  readSeq(arr, guess); //convert the value to an array of digits
 }
 
 /* ======================================================= */
