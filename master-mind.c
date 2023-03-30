@@ -214,37 +214,6 @@ void waitForEnter (void);
 void waitForButton (uint32_t *gpio, int button);
 
 /* ======================================================= */
-/* SECTION: hardware interface (LED, button, LCD display)  */
-/* ------------------------------------------------------- */
-/* low-level interface to the hardware */
-
-/* ********************************************************** */
-/* COMPLETE the code for all of the functions in this SECTION */
-/* Either put them in a separate file, lcdBinary.c, and use   */
-/* inline Assembler there, or use a standalone Assembler file */
-/* You can also directly implement them here (inline Asm).    */
-/* ********************************************************** */
-
-/* These are just prototypes; you need to complete the code for each function */
-
-/* send a @value@ (LOW or HIGH) on pin number @pin@; @gpio@ is the mmaped GPIO base address */
-void digitalWrite (uint32_t *gpio, int pin, int value);
-
-/* set the @mode@ of a GPIO @pin@ to INPUT or OUTPUT; @gpio@ is the mmaped GPIO base address */
-void pinMode(uint32_t *gpio, int pin, int mode);
-
-/* send a @value@ (LOW or HIGH) on pin number @pin@; @gpio@ is the mmaped GPIO base address */
-/* can use digitalWrite(), depending on your implementation */
-void writeLED(uint32_t *gpio, int led, int value);
-
-/* read a @value@ (LOW or HIGH) from pin number @pin@ (a button device); @gpio@ is the mmaped GPIO base address */
-int readButton(uint32_t *gpio, int button);
-
-/* wait for a button input on pin number @button@; @gpio@ is the mmaped GPIO base address */
-/* can use readButton(), depending on your implementation */
-void waitForButton (uint32_t *gpio, int button);
-
-/* ======================================================= */
 /* SECTION: game logic                                     */
 /* ------------------------------------------------------- */
 /* AUX fcts of the game logic */
