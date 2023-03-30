@@ -68,6 +68,12 @@ void writeLED(uint32_t *gpio, int led, int value) {
 
 int readButton(uint32_t *gpio, int button) {
   /* ***  COMPLETE the code here, using inline Assembler  ***  */
+
+  // This is in C, needs to converted to inline ASsembler!!!
+  if ((*(gpio + 13 /* GPLEV0 */) & (1 << (button & 31))) != 0)
+    return HIGH ;
+  else
+    return LOW ;
 }
 
 void waitForButton(uint32_t *gpio, int button) {
