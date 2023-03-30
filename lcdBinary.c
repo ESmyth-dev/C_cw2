@@ -92,7 +92,7 @@ void writeLED(uint32_t *gpio, int led, int value) {
   } 
   else 
   { 
-    fprintf(stderr, "brother out here not using on-board pins frfr 💀\n"); 
+    fprintf(stderr, "brother out here not using on-board pins frfr 💀💀💀\n"); 
     exit(1); 
   }
 }
