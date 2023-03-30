@@ -70,9 +70,7 @@ void pinMode(uint32_t *gpio, int pin, int mode /*, int fSel, int shift */) {
 }
 
 void writeLED(uint32_t *gpio, int led, int value) {
-  /* ***  COMPLETE the code here, using inline Assembler  ***  */
-
-// This is in C, needs to converted to inline Assembler!!!
+  // This is in C, needs to converted to inline Assembler!!!
   if ((led & 0xFFFFFFC0) == 0) // sanity check
   {
     int clrOff, setOff;
