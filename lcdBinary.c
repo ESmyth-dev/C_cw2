@@ -95,30 +95,7 @@ void pinMode(uint32_t *gpio, int pin, int mode /*, int fSel, int shift */) {
 
 void writeLED(uint32_t *gpio, int led, int value) {
   // This is in C, needs to converted to inline Assembler!!!
-  if ((led & 0xFFFFFFC0) == 0) // sanity check
-  {
-    int clrOff, setOff;
-    if (led < 32)
-    {
-      clrOff = 10; // GPCLR, register for clearing a pin value
-      setOff = 7; // GPSET, register for setting a pin value
-    }
-    else
-    {
-      clrOff = 11;
-      setOff = 8;
-    }
-
-    if (value == LOW) 
-      *(gpio + clrOff) = 1 << (led & 31) ;
-    else
-      *(gpio + setOff) = 1 << (led & 31) ;
-  } 
-  else 
-  { 
-    fprintf(stderr, "brother out here not using on-board pins frfr 💀💀💀\n"); 
-    exit(1); 
-  }
+  digitalWrite(*gpio,led,value);
 }
 
 int readButton(uint32_t *gpio, int button) {
