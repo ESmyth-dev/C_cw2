@@ -62,6 +62,8 @@
 #include <sys/wait.h>
 #include <sys/ioctl.h>
 
+#include "lcdBinary.c"
+
 /* --------------------------------------------------------------------------- */
 /* Config settings */
 /* you can use CPP flags to e.g. print extra debugging messages */
