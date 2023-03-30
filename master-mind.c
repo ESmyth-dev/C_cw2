@@ -267,10 +267,8 @@ int* countMatches(int *seq1, int *seq2) {
         approximate++;
         break;
       }      
-    }
-    
+    } 
   }
-  
 }
 
 /* show the results from calling countMatches on seq1 and seq1 */
@@ -813,7 +811,9 @@ int main (int argc, char *argv[])
   // -------------------------------------------------------
   // Configuration of LED and BUTTON
   
-
+  pinMode(gpio, LED, OUTPUT);
+  pinMode(gpio, LED2, OUTPUT);
+  pinMode(gpio, BUTTON, INPUT);
 
   // -------------------------------------------------------
   // INLINED version of lcdInit (can only deal with one LCD attached to the RPi):

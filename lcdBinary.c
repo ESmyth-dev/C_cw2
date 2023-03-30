@@ -86,7 +86,7 @@ void pinMode(uint32_t *gpio, int pin, int mode /*, int fSel, int shift */) {
   // This is in C, needs to converted to inline Assembler!!!
   int fSel =  pin/10;
   int shift = (pin%10)*3;
-  if(mode==HIGH){
+  if(mode==OUTPUT){
     *(gpio + fSel) = (*(gpio + fSel) & ~(7 << shift)) | (1 << shift); // set bits to one = output
   } else{
     *(gpio + fSel) = (*(gpio + fSel) & (7 << shift)); // set bits to zero = input
@@ -102,14 +102,14 @@ int readButton(uint32_t *gpio, int button) {
   // This is in C, needs to converted to inline Assembler!!!
   if(button<32){
     if ((*(gpio + 13 /* GPLEV0 */) & (1 << (button & 31))) != 0)
-    return HIGH ;
+    return HIGH;
   else
-    return LOW ;
+    return LOW;
   } else{
   if ((*(gpio + 14 /* GPLEV0 */) & (1 << (button & 31))) != 0)
-    return HIGH ;
+    return HIGH;
   else
-    return LOW ;
+    return LOW;
   }
 }
 
