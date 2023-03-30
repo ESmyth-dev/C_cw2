@@ -358,7 +358,7 @@ void timer_handler (int signum) {
 
 /* initialise time-stamps, setup an interval timer, and install the timer_handler callback */
 void initITimer(uint64_t timeout){
-  /* ***  COMPLETE the code here  ***  */
+  
 }
 
 /* ======================================================= */
