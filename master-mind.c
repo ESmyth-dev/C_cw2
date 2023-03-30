@@ -811,8 +811,8 @@ int main (int argc, char *argv[])
   // -------------------------------------------------------
   // LCD constants, hard-coded: 16x2 display, using a 4-bit connection
   bits = 4; 
-  cols = 16; 
-  rows = 2; 
+  cols = 16;
+  rows = 2;
   // -------------------------------------------------------
 
   printf ("Raspberry Pi LCD driver, for a %dx%d display (%d-bit wiring) \n", cols, rows, bits) ;

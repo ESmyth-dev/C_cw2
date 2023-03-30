@@ -114,5 +114,7 @@ int readButton(uint32_t *gpio, int button) {
 }
 
 void waitForButton(uint32_t *gpio, int button) {
-  /* ***  COMPLETE the code here, just C no Assembler; you can use readButton ***  */
+  while(readButton(*gpio,button)==LOW){
+    continue;
+  }
 }
