@@ -54,7 +54,31 @@ int failure (int fatal, const char *message, ...);
 
 /* this version needs gpio as argument, because it is in a separate file */
 void digitalWrite (uint32_t *gpio, int pin, int value) {
-  /* ***  COMPLETE the code here, using inline Assembler  ***  */
+   // This is in C, needs to converted to inline Assembler!!!
+  if ((pin & 0xFFFFFFC0) == 0) // sanity check
+  {
+    int clrOff, setOff;
+    if (pinMode < 32)
+    {
+      clrOff = 10; // GPCLR, register for clearing a pin value
+      setOff = 7; // GPSET, register for setting a pin value
+    }
+    else
+    {
+      clrOff = 11;
+      setOff = 8;
+    }
+
+    if (value == LOW) 
+      *(gpio + clrOff) = 1 << (pin & 31) ;
+    else
+      *(gpio + setOff) = 1 << (pin & 31) ;
+  } 
+  else 
+  { 
+    fprintf(stderr, "brother out here not using on-board pins frfr 💀💀💀\n"); 
+    exit(1); 
+  }
 }
 
 // adapted from setPinMode
