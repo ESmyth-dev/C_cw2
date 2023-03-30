@@ -842,21 +842,7 @@ int main (int argc, char *argv[])
   // -------------------------------------------------------
   // Configuration of LED and BUTTON
 
-  // Set mode of LED 1 (GPIO pin 13) to output
-  fSel =  1;
-  shift =  9;  // shift by 3*3 (3 bits per pin)
-  *(gpio + fSel) = (*(gpio + fSel) & ~(7 << shift)) | (1 << shift); // set bits to one = output
 
-  // Set mode of LED 2 (GPIO pin 5) to output
-  fSel =  0;
-  shift =  15;  // shift by 5*3 (3 bits per pin)
-  *(gpio + fSel) = (*(gpio + fSel) & ~(7 << shift)) | (1 << shift); // set bits to one = output
-
-  // Set mode of button (GPIO pin 19) to input
-  fSel =  1;
-  shift =  27;  // shift by 9*3 (3 bits per pin)
-  *(gpio + fSel) = (*(gpio + fSel) &  ̃(7 << shift)); // set bits to zero = input
-  
   // -------------------------------------------------------
   // INLINED version of lcdInit (can only deal with one LCD attached to the RPi):
   // you can use this code as-is, but you need to implement digitalWrite() and
