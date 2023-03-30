@@ -59,7 +59,14 @@ void digitalWrite (uint32_t *gpio, int pin, int value) {
 
 // adapted from setPinMode
 void pinMode(uint32_t *gpio, int pin, int mode /*, int fSel, int shift */) {
-  /* ***  COMPLETE the code here, using inline Assembler  ***  */
+  // This is in C, needs to converted to inline Assembler!!!
+  int fSel =  (pin/10)%10;
+  int shift = (pin%10)*3;
+  if(mode==HIGH){
+    *(gpio + fSel) = (*(gpio + fSel) & ~(7 << shift)) | (1 << shift); // set bits to one = output
+  } else{
+    *(gpio + fSel) = (*(gpio + fSel) & (7 << shift)); // set bits to zero = input
+  }
 }
 
 void writeLED(uint32_t *gpio, int led, int value) {
@@ -93,13 +100,18 @@ void writeLED(uint32_t *gpio, int led, int value) {
 }
 
 int readButton(uint32_t *gpio, int button) {
-  /* ***  COMPLETE the code here, using inline Assembler  ***  */
-
   // This is in C, needs to converted to inline Assembler!!!
-  if ((*(gpio + 13 /* GPLEV0 */) & (1 << (button & 31))) != 0)
+  if(button<32){
+    if ((*(gpio + 13 /* GPLEV0 */) & (1 << (button & 31))) != 0)
     return HIGH ;
   else
     return LOW ;
+  } else{
+  if ((*(gpio + 14 /* GPLEV0 */) & (1 << (button & 31))) != 0)
+    return HIGH ;
+  else
+    return LOW ;
+  }
 }
 
 void waitForButton(uint32_t *gpio, int button) {
