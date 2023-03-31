@@ -311,6 +311,8 @@ int readNum(int max)
 
 /* timestamps needed to implement a time-out mechanism */
 static uint64_t startT, stopT;
+struct timeval timer;
+struct sigaction sa;
 
 /* ********************************************************** */
 /* COMPLETE the code for all of the functions in this SECTION */
@@ -319,22 +321,37 @@ static uint64_t startT, stopT;
 
 /* you may need this function in timer_handler() below  */
 /* use the libc fct gettimeofday() to implement it      */
-uint64_t timeInMicroseconds(){
-  uint64_t time;
-  gettimeofday(&time,NULL);
-  return time;
+uint64_t timeInMicroseconds() {
+  struct timeval seconds;
+  gettimeofday(&seconds,NULL);
+  uint64_t microseconds  = (uint64_t)seconds.tv_sec * (uint64_t)1000000 + (uint64_t)tv.tv_usec ; // in us
+  return microseconds; 
 }
 
 /* this should be the callback, triggered via an interval timer, */
 /* that is set-up through a call to sigaction() in the main fct. */
 void timer_handler (int signum) {
-  /* ***  COMPLETE the code here  ***  */
+  stopT = timeInMicroseconds();
+
+  //stuff that happens when timer 
+  
+
+  startT = timeInMicroseconds();
 }
 
 
 /* initialise time-stamps, setup an interval timer, and install the timer_handler callback */
-void initITimer(uint64_t timeout){
+void initITimer(uint64_t timeout) {
   
+  sigaction (SIGALRM, &sa, NULL);
+  memset (&sa, 0, sizeof (sa));
+  sa.sa_handler = &timer_handler;
+
+  timer.it_value.tv_sec = 0;
+  timer.it_value.tv_usec = timeout;
+  timer.it_interval.tv_sec = 0;
+  timer.it_interval.tv_usec = timeout;
+  setitimer(ITIMER_REAL, &timer, NULL);
 }
 
 /* ======================================================= */
