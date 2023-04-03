@@ -52,7 +52,6 @@
 #include <unistd.h>
 #include <string.h>
 #include <time.h>
-#include <math.h>
 
 #include <errno.h>
 #include <fcntl.h>
@@ -224,18 +223,31 @@ void waitForButton (uint32_t *gpio, int button);
 /* Implement these as C functions in this file                */
 /* ********************************************************** */
 
+int i, j;
+
+// power function
+int pow(int base, int expo) {
+  int result = base;
+  
+  for (i = 1; i < expo; i++) {
+    result *= base;
+  }
+
+  return result;
+}
+
 /* initialise the secret sequence; by default it should be a random sequence */
 void initSeq() {
   srand(time(NULL));
   theSeq = calloc(seqlen,sizeof(int));
-  for(int i =0;i<seqlen;i++){
+  for (i =0;i<seqlen;i++){
     theSeq[i] = rand() % colors +1;
   }
 }
 
 /* display the sequence on the terminal window, using the format from the sample run in the spec */
 void showSeq(int *seq) {
-  for(int i = 0; i< seqlen;i++){
+  for (i = 0; i< seqlen;i++){
     printf("%d ",seq[i]);
   }
   printf("\n");
@@ -252,7 +264,7 @@ int* countMatches(int *seq1, int *seq2) {
   int approximate = 0;
   int *seq3;
   seq3 = calloc(seqlen,sizeof(int));
-  for (int i = 0; i < seqlen; i++)
+  for (i = 0; i < seqlen; i++)
   {
    if(seq1[i]==seq2[i]){
     exact++;
@@ -260,9 +272,9 @@ int* countMatches(int *seq1, int *seq2) {
     seq3[i] = seq1[i];
    }
   }
-  for (int i = 0; i < seqlen; i++)
+  for (i = 0; i < seqlen; i++)
   {
-    for (int j = 0; j < seqlen; j++)
+    for (j = 0; j < seqlen; j++)
     {
       if(seq3[i] == seq2[j]){
         approximate++;
@@ -286,7 +298,7 @@ void readSeq(int *seq, int val)
 {
   seq[0] = val / (pow(10, seqlen-1));
 
-  for (int i = 1; i < seqlen; i++)
+  for (i = 1; i < seqlen; i++)
   {
     val -= seq[i-1]*((pow(10, seqlen-i)));
     seq[i] = val / (pow(10, seqlen-1-i));
@@ -670,7 +682,7 @@ void lcdPuts (struct lcdDataStruct *lcd, const char *string)
 
 /* blink the led on pin @led@, @c@ times */
 void blinkN(uint32_t *gpio, int led, int c) { 
-  for (int i = 0; i < c; i++)
+  for (i = 0; i < c; i++)
     {
       writeLED(gpio,led,HIGH);
       usleep(10000);
@@ -954,8 +966,8 @@ int main (int argc, char *argv[])
     waitForButton(gpio, pinButton);
     buttonPresses++;
 
-    blinkN(gpio,pinLED,1);
-    blinkN(gpio,pin2LED2,buttonPresses);
+    blinkN(gpio,pin2LED2,1);
+    blinkN(gpio,pinLED,buttonPresses);
     
     
   }
