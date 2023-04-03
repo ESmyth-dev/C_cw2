@@ -52,6 +52,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <time.h>
+#include <math.h>
 
 #include <errno.h>
 #include <fcntl.h>
@@ -275,7 +276,7 @@ int* countMatches(int *seq1, int *seq2) {
 void showMatches(int /* or int* */ code, /* only for debugging */ int *seq1, int *seq2, /* optional, to control layout */ int lcd_format)
 {
   int* matchesResults = calloc(2, sizeof(int));
-  matchesResults = countMatches(*seq1, *seq2);
+  matchesResults = countMatches(seq1, seq2);
   printf("There were %d exact matches and %d approximate matches.\n", matchesResults[0], matchesResults[1]);
 }
 
@@ -299,7 +300,7 @@ int readNum(int max)
   int* arr = calloc(seqlen, sizeof(int));
 
   int guess;
-  scanf("%d", guess); // take the guess sequence as a user input
+  scanf("%d", &guess); // take the guess sequence as a user input
 
   readSeq(arr, guess); //convert the value to an array of digits
 }
@@ -324,9 +325,11 @@ struct sigaction sa;
 uint64_t timeInMicroseconds() {
   struct timeval seconds;
   gettimeofday(&seconds,NULL);
-  uint64_t microseconds  = (uint64_t)seconds.tv_sec * (uint64_t)1000000 + (uint64_t)tv.tv_usec ; // in us
+  uint64_t microseconds  = (uint64_t)seconds.tv_sec * (uint64_t)1000000 + (uint64_t)seconds.tv_usec ; // in us
   return microseconds; 
 }
+
+int buttonPresses = 0;
 
 /* this should be the callback, triggered via an interval timer, */
 /* that is set-up through a call to sigaction() in the main fct. */
@@ -347,10 +350,8 @@ void initITimer(uint64_t timeout) {
   memset (&sa, 0, sizeof (sa));
   sa.sa_handler = &timer_handler;
 
-  timer.it_value.tv_sec = 0;
-  timer.it_value.tv_usec = timeout;
-  timer.it_interval.tv_sec = 0;
-  timer.it_interval.tv_usec = timeout;
+  timer.tv_sec = 0;
+  timer.tv_usec = timeout;
   setitimer(ITIMER_REAL, &timer, NULL);
 }
 
@@ -669,7 +670,13 @@ void lcdPuts (struct lcdDataStruct *lcd, const char *string)
 
 /* blink the led on pin @led@, @c@ times */
 void blinkN(uint32_t *gpio, int led, int c) { 
-  /* ***  COMPLETE the code here  ***  */
+  for (int i = 0; i < c; i++)
+    {
+      writeLED(gpio,led,HIGH);
+      usleep(10000);
+      writeLED(gpio,led,LOW);
+      usleep(10000);
+    }
 }
 
 /* ======================================================= */
@@ -828,9 +835,9 @@ int main (int argc, char *argv[])
   // -------------------------------------------------------
   // Configuration of LED and BUTTON
   
-  pinMode(gpio, LED, OUTPUT);
-  pinMode(gpio, LED2, OUTPUT);
-  pinMode(gpio, BUTTON, INPUT);
+  pinMode(gpio, pinLED, OUTPUT);
+  pinMode(gpio, pin2LED2, OUTPUT);
+  pinMode(gpio, pinButton, INPUT);
 
   // -------------------------------------------------------
   // INLINED version of lcdInit (can only deal with one LCD attached to the RPi):
@@ -925,32 +932,32 @@ int main (int argc, char *argv[])
   // -----------------------------------------------------------------------------
   // Start of game
   fprintf(stderr,"Printing welcome message on the LCD display ...\n");
-  /* ***  COMPLETE the code here  ***  */
-
+  // Welcome message
   /* initialise the secret sequence */
   if (!opt_s)
     initSeq();
-  if (debug)
+  if (debug){
     showSeq(theSeq);
-
-  // optionally one of these 2 calls:
-  // waitForEnter () ; 
-  // waitForButton (gpio, pinButton) ;
+    waitForEnter ();
+  } else{
+    waitForButton (gpio, pinButton);
+  } 
+ 
 
   // -----------------------------------------------------------------------------
   // +++++ main loop
   while (!found) {
     attempts++;
 
-    /* ******************************************************* */
-    /* ***  COMPLETE the code here  ***                        */
-    /* this needs to implement the main loop of the game:      */
-    /* check for button presses and count them                 */
-    /* store the input numbers in the sequence @attSeq@        */
-    /* compute the match with the secret sequence, and         */
-    /* show the result                                         */
-    /* see CW spec for details                                 */
-    /* ******************************************************* */
+    // main loop of the game
+
+    waitForButton(gpio, pinButton);
+    buttonPresses++;
+
+    blinkN(gpio,pinLED,1);
+    blinkN(gpio,pin2LED2,buttonPresses);
+    
+    
   }
   if (found) {
       /* ***  COMPLETE the code here  ***  */
