@@ -88,7 +88,7 @@ void pinMode(uint32_t *gpio, int pin, int mode /*, int fSel, int shift */) {
   if(mode==OUTPUT){
     *(gpio + fSel) = (*(gpio + fSel) & ~(7 << shift)) | (1 << shift); // set bits to one = output
   } else{
-    *(gpio + fSel) = (*(gpio + fSel) & (7 << shift)); // set bits to zero = input
+    *(gpio + fSel) = (*(gpio + fSel) & ~(7 << shift)); // set bits to zero = input
   }
 }
 
