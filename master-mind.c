@@ -62,7 +62,6 @@
 #include <sys/wait.h>
 #include <sys/ioctl.h>
 
-#include "lcdBinary.c"
 
 /* --------------------------------------------------------------------------- */
 /* Config settings */
@@ -85,8 +84,8 @@
 // delay for loop iterations (mainly), in ms
 // in mili-seconds: 0.2s
 #define DELAY   200
-// in micro-seconds: 3s
-#define TIMEOUT 3000000
+// in micro-seconds: 5s
+#define TIMEOUT 5000000
 // =======================================================
 // APP constants   ---------------------------------
 // number of colours and length of the sequence
@@ -326,6 +325,7 @@ int readNum(int max)
 static uint64_t startT, stopT;
 struct timeval timer;
 struct sigaction sa;
+int timerActive = FALSE;
 
 /* ********************************************************** */
 /* COMPLETE the code for all of the functions in this SECTION */
@@ -347,8 +347,7 @@ int buttonPresses = 0;
 /* that is set-up through a call to sigaction() in the main fct. */
 void timer_handler (int signum) {
   stopT = timeInMicroseconds();
-
-  //stuff that happens when timer 
+  timerActive=FALSE;
   
 
   startT = timeInMicroseconds();
@@ -362,8 +361,8 @@ void initITimer(uint64_t timeout) {
   memset (&sa, 0, sizeof (sa));
   sa.sa_handler = &timer_handler;
 
-  timer.tv_sec = 0;
-  timer.tv_usec = timeout;
+  timer.it_value.tv_sec = 0;
+  timer.it_value.tv_usec = timeout;
   setitimer(ITIMER_REAL, &timer, NULL);
 }
 
@@ -704,6 +703,7 @@ int main (int argc, char *argv[])
   int found = 0, attempts = 0, i, j, code;
   int c, d, buttonPressed, rel, foo;
   int *attSeq;
+  int*guessSeq = calloc(seqlen,sizeof(int));
 
   int pinLED = LED, pin2LED2 = LED2, pinButton = BUTTON;
   int fSel, shift, pin,  clrOff, setOff, off, res;
@@ -960,19 +960,32 @@ int main (int argc, char *argv[])
   // +++++ main loop
   while (!found) {
     attempts++;
+    for (i = 0; i < seqlen; i++)
+    {
+      // guess ith value
+      waitForButton(gpio,pinButton);
+      initITimer(TIMEOUT);
+      timerActive = TRUE;
+      buttonPresses++;
 
-    // main loop of the game
-
-    waitForButton(gpio, pinButton);
-    buttonPresses++;
-
-    blinkN(gpio,pin2LED2,1);
-    blinkN(gpio,pinLED,buttonPresses);
-    
-    
+      while(timerActive){
+        waitForButton(gpio,pinButton){
+          if(timerActive){
+          buttonPresses++;
+          }
+        }
+      }
+        guessSeq[i] = buttonPresses;
+        blinkN(gpio,pin2LED2,1);
+        blinkN(gpio,pinLED,buttonPresses);
+        buttonPresses = 0;
+    }
+    showMatches(1,theSeq,guessSeq,1);
   }
   if (found) {
-      /* ***  COMPLETE the code here  ***  */
+      // congratulate user
+      // it took x attempts
+      //end game
   } else {
     fprintf(stdout, "Sequence not found\n");
   }
