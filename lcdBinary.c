@@ -47,6 +47,7 @@
 // prototypes
 
 int failure (int fatal, const char *message, ...);
+extern int timerActive;
 
 // -----------------------------------------------------------------------------
 // Functions to implement here (or directly in master-mind.c)

@@ -969,17 +969,16 @@ int main (int argc, char *argv[])
       buttonPresses++;
 
       while(timerActive){
-        waitForButton(gpio,pinButton){
-          if(timerActive){
+        waitForButton(gpio,pinButton)
+        if(timerActive){
           buttonPresses++;
-          }
         }
       }
-        guessSeq[i] = buttonPresses;
-        blinkN(gpio,pin2LED2,1);
-        blinkN(gpio,pinLED,buttonPresses);
-        buttonPresses = 0;
     }
+    guessSeq[i] = buttonPresses;
+    blinkN(gpio,pin2LED2,1);
+    blinkN(gpio,pinLED,buttonPresses);
+    buttonPresses = 0;
     showMatches(1,theSeq,guessSeq,1);
   }
   if (found) {
