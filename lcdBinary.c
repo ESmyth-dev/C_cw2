@@ -76,13 +76,13 @@ void digitalWrite (uint32_t *gpio, int pin, int value) {
   } 
   else 
   { 
-    fprintf(stderr, "brother out here not using on-board pins frfr 💀💀💀\n"); 
+    fprintf(stderr, "Not using on-board pins\n"); 
     exit(1); 
   }
 }
 
 // adapted from setPinMode
-void pinMode(uint32_t *gpio, int pin, int mode /*, int fSel, int shift */) {
+void pinMode(uint32_t *gpio, int pin, int mode) {
   // This is in C, needs to converted to inline Assembler!!!
   int fSel =  pin/10;
   int shift = (pin%10)*3;
@@ -102,29 +102,31 @@ int readButton(uint32_t *gpio, int button) {
   // This is in C, needs to converted to inline Assembler!!!
   if(button<32){
     if ((*(gpio + 13 /* GPLEV0 */) & (1 << (button & 31))) != 0)
-    return HIGH;
-  else
-    return LOW;
+      return HIGH;
+    else
+      return LOW;
   } else{
-  if ((*(gpio + 14 /* GPLEV0 */) & (1 << (button & 31))) != 0)
-    return HIGH;
-  else
-    return LOW;
+    if ((*(gpio + 14 /* GPLEV0 */) & (1 << (button & 31))) != 0)
+      return HIGH;
+    else
+      return LOW;
   }
 }
 
 void waitForButton(uint32_t *gpio, int button) {
-  //this stays in c!
-  while(readButton(gpio,button)==HIGH){
-    continue;
-    if(!timerActive){
+  int timerChange = timerActive;
+  while(TRUE){
+    if(timerChange!=timerActive)
       break;
-    }
+    if(readButton(gpio,button)==LOW)
+      break;
+    usleep(50000);
   }
-  while(readButton(gpio,button)==LOW){
-    continue;
-    if(!timerActive){
+  while(TRUE){
+    if(timerChange!=timerActive)
       break;
-    }
+    if(readButton(gpio,button)==HIGH)
+      break;
+    usleep(50000);
   }
 }
