@@ -804,7 +804,7 @@ int main (int argc, char *argv[])
     if (verbose)
       fprintf(stdout, "Testing matches function with sequences %d and %d\n", opt_m, opt_n);
     res_matches = countMatches(seq1, seq2);
-    showMatches(res_matches, seq1, seq2, 1);
+    showMatches(res_matches, seq1, seq2);
     exit(EXIT_SUCCESS);
   } else {
     /* nothing to do here; just continue with the rest of the main fct */
