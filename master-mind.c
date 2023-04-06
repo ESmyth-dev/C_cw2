@@ -1003,7 +1003,7 @@ int main (int argc, char *argv[])
   }
   if (found) {
       writeLED(gpio,pin2LED2,HIGH);
-      blinkN(gpio,PinLED,3);
+      blinkN(gpio,pinLED,3);
       lcdClear(lcd);
       snprintf(firstLine,16,"SUCCESS in %d",attempts);
       lcdPosition(lcd, 0, 0) ; lcdPuts(lcd,firstLine);
