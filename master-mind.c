@@ -229,7 +229,7 @@ int i, j,k;
 int pow(int base, int expo) {
   int result = base;
   if(expo==0)
-    return 0;
+    return 1;
   for (k = 1; k < expo; k++) {
     result *= base;
   }
@@ -263,24 +263,27 @@ void showSeq(int *seq) {
 int* countMatches(int *seq1, int *seq2) {
   int exact = 0;
   int approximate = 0;
-  int *seq3,*matches;
+  int *seq3,*seq4,*matches;
   matches = calloc(2,sizeof(int));
   seq3 = calloc(seqlen,sizeof(int));
+  seq4 = calloc(seqlen,sizeof(int));
   for (i = 0; i < seqlen; i++)
   {
    if(seq1[i]==seq2[i]){
     exact++;
+    seq4[i] = -1;
    } else{
     seq3[i] = seq1[i];
+    seq4[i] = seq2[i];
    }
   }
   for (i = 0; i < seqlen; i++)
   {
     for (j = 0; j < seqlen; j++)
     {
-      if(seq2[i] == seq3[j]){
+      if(seq3[i] == seq4[j]){
         approximate++;
-        seq3[j] = 0;
+        seq4[j] = -1;
         break;
       }      
     } 
@@ -360,9 +363,9 @@ void timer_handler (int signum) {
 /* initialise time-stamps, setup an interval timer, and install the timer_handler callback */
 void initITimer(uint64_t timeout) {
   
-  sigaction (SIGALRM, &sa, NULL);
   memset (&sa, 0, sizeof (sa));
   sa.sa_handler = &timer_handler;
+  sigaction (SIGALRM, &sa, NULL);
 
   timer.it_value.tv_sec = timeout/1000000;
   timer.it_value.tv_usec = timeout%1000000;
@@ -953,7 +956,8 @@ int main (int argc, char *argv[])
   // -----------------------------------------------------------------------------
   // Start of game
   fprintf(stderr,"Printing welcome message on the LCD display ...\n");
-  // Welcome message
+  lcdPosition(lcd, 0, 0) ; lcdPuts(lcd,"Welcome to");
+  lcdPosition(lcd, 0, 1) ; lcdPuts(lcd,"Mastermind");
   /* initialise the secret sequence */
   if (!opt_s)
     initSeq();
@@ -983,6 +987,7 @@ int main (int argc, char *argv[])
       }
       blinkN(gpio,pin2LED2,1);
       blinkN(gpio,pinLED,buttonPresses);
+      guessSeq[i] = 0;
       buttonPresses = 0;
     }
     matches = countMatches(theSeq,guessSeq);
