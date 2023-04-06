@@ -52,6 +52,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <time.h>
+#include <signal.h>
 
 #include <errno.h>
 #include <fcntl.h>
@@ -222,13 +223,14 @@ void waitForButton (uint32_t *gpio, int button);
 /* Implement these as C functions in this file                */
 /* ********************************************************** */
 
-int i, j;
+int i, j,k;
 
 // power function
 int pow(int base, int expo) {
   int result = base;
-  
-  for (i = 1; i < expo; i++) {
+  if(expo==0)
+    return 0;
+  for (k = 1; k < expo; k++) {
     result *= base;
   }
 
@@ -275,20 +277,24 @@ int* countMatches(int *seq1, int *seq2) {
   {
     for (j = 0; j < seqlen; j++)
     {
-      if(seq3[i] == seq2[j]){
+      if(seq2[i] == seq3[j]){
         approximate++;
+        seq3[j] = 0;
         break;
       }      
     } 
   }
+  matches[0] = exact;
+  matches[1] = approximate;
+  return matches;
 }
 
 /* show the results from calling countMatches on seq1 and seq1 */
-void showMatches(int /* or int* */ code, /* only for debugging */ int *seq1, int *seq2, /* optional, to control layout */ int lcd_format)
+void showMatches(int code, /* only for debugging */ int *seq1, int *seq2)
 {
   int* matchesResults = calloc(2, sizeof(int));
   matchesResults = countMatches(seq1, seq2);
-  printf("There were %d exact matches and %d approximate matches.\n", matchesResults[0], matchesResults[1]);
+  printf("%d exact\n%d approximate\n", matchesResults[0], matchesResults[1]);
 }
 
 /* parse an integer value as a list of digits, and put them into @seq@ */
@@ -323,7 +329,7 @@ int readNum(int max)
 
 /* timestamps needed to implement a time-out mechanism */
 static uint64_t startT, stopT;
-struct timeval timer;
+struct itimerval timer;
 struct sigaction sa;
 int timerActive = FALSE;
 
@@ -346,11 +352,7 @@ int buttonPresses = 0;
 /* this should be the callback, triggered via an interval timer, */
 /* that is set-up through a call to sigaction() in the main fct. */
 void timer_handler (int signum) {
-  stopT = timeInMicroseconds();
   timerActive=FALSE;
-  
-
-  startT = timeInMicroseconds();
 }
 
 
@@ -361,9 +363,12 @@ void initITimer(uint64_t timeout) {
   memset (&sa, 0, sizeof (sa));
   sa.sa_handler = &timer_handler;
 
-  timer.it_value.tv_sec = 0;
-  timer.it_value.tv_usec = timeout;
+  timer.it_value.tv_sec = timeout/1000000;
+  timer.it_value.tv_usec = timeout%1000000;
+  timer.it_interval.tv_sec = 0;
+  timer.it_interval.tv_usec = 0;
   setitimer(ITIMER_REAL, &timer, NULL);
+  timerActive = True;
 }
 
 /* ======================================================= */
@@ -684,9 +689,9 @@ void blinkN(uint32_t *gpio, int led, int c) {
   for (i = 0; i < c; i++)
     {
       writeLED(gpio,led,HIGH);
-      usleep(10000);
+      usleep(500000);
       writeLED(gpio,led,LOW);
-      usleep(10000);
+      usleep(500000);
     }
 }
 
@@ -703,7 +708,10 @@ int main (int argc, char *argv[])
   int found = 0, attempts = 0, i, j, code;
   int c, d, buttonPressed, rel, foo;
   int *attSeq;
-  int*guessSeq = calloc(seqlen,sizeof(int));
+  int *guessSeq = calloc(seqlen,sizeof(int));
+  int *matches = calloc(2,sizeof(int));
+  char *firstLine = calloc(16,sizeof(char));
+  char *secondLine = calloc(16,sizeof(char));
 
   int pinLED = LED, pin2LED2 = LED2, pinButton = BUTTON;
   int fSel, shift, pin,  clrOff, setOff, off, res;
@@ -964,27 +972,42 @@ int main (int argc, char *argv[])
     {
       // guess ith value
       waitForButton(gpio,pinButton);
-      initITimer(TIMEOUT);
-      timerActive = TRUE;
       buttonPresses++;
-
+      initITimer(TIMEOUT);
       while(timerActive){
-        waitForButton(gpio,pinButton)
+        waitForButton(gpio,pinButton);
         if(timerActive){
           buttonPresses++;
         }
       }
+      blinkN(gpio,pin2LED2,1);
+      blinkN(gpio,pinLED,buttonPresses);
+      buttonPresses = 0;
     }
-    guessSeq[i] = buttonPresses;
+    matches = countMatches(theSeq,guessSeq);
+    blinkN(gpio,pin2LED2,2);
+    blinkN(gpio,pinLED,matches[0]);
     blinkN(gpio,pin2LED2,1);
-    blinkN(gpio,pinLED,buttonPresses);
-    buttonPresses = 0;
-    showMatches(1,theSeq,guessSeq,1);
+    blinkN(gpio,pinLED,matches[1]);
+    blinkN(gpio,pin2LED2,3);
+    snprintf(firstLine,16,"Exact %d",matches[0]);
+    snprintf(secondLine,16,"Exact %d",matches[0]);
+    lcdClear(lcd);
+    lcdPosition(lcd, 0, 0) ; lcdPuts(lcd,firstLine);
+    lcdPosition(lcd, 0, 1) ; lcdPuts(lcd,secondLine);
+    if(matches[0]==seqlen){
+      found = TRUE;
+    }
+
   }
   if (found) {
-      // congratulate user
-      // it took x attempts
-      //end game
+      writeLED(gpio,pin2LED2,HIGH);
+      blinkN(gpio,PinLED,3);
+      lcdClear(lcd);
+      snprintf(firstLine,16,"SUCCESS in %d",attempts);
+      lcdPosition(lcd, 0, 0) ; lcdPuts(lcd,firstLine);
+      lcdPosition(lcd, 0, 1) ; lcdPuts(lcd,"attempts!");
+      writeLED(gpio,pin2LED2,LOW);
   } else {
     fprintf(stdout, "Sequence not found\n");
   }
