@@ -263,7 +263,8 @@ void showSeq(int *seq) {
 int* countMatches(int *seq1, int *seq2) {
   int exact = 0;
   int approximate = 0;
-  int *seq3;
+  int *seq3,*matches;
+  matches = calloc(2,sizeof(int));
   seq3 = calloc(seqlen,sizeof(int));
   for (i = 0; i < seqlen; i++)
   {
