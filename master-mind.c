@@ -997,7 +997,7 @@ int main (int argc, char *argv[])
     blinkN(gpio,pinLED,matches[1]);
     blinkN(gpio,pin2LED2,3);
     snprintf(firstLine,16,"Exact %d",matches[0]);
-    snprintf(secondLine,16,"Exact %d",matches[0]);
+    snprintf(secondLine,16,"Approx: %d",matches[1]);
     lcdClear(lcd);
     lcdPosition(lcd, 0, 0) ; lcdPuts(lcd,firstLine);
     lcdPosition(lcd, 0, 1) ; lcdPuts(lcd,secondLine);
