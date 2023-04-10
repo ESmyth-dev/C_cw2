@@ -54,7 +54,42 @@ extern int timerActive;
 
 /* this version needs gpio as argument, because it is in a separate file */
 void digitalWrite (uint32_t *gpio, int pin, int value) {
-   // This is in C, needs to converted to inline Assembler!!!
+  asm(
+    "MOV R0, #1\n"
+    "MOV R1, #31\n"
+    "AND R1, %[pin]\n"
+    "LSL R0, R0, R1\n" //shift #1 (pin & 31) to the left
+    "CMP %[pin], #32\n"
+    "BLT less\n"
+    "MOV R1, #11\n" //GPCLR
+    "MOV R2, #8\n"  //GPSET
+    "B continue\n"
+
+  "less:\n"
+    "MOV R1, #10\n"
+    "MOV R2, #7\n"
+    "B continue\n"
+
+  "continue:\n"
+    "CMP %[val], #0\n"
+    "BEQ low\n"
+    "LDR R3, [%[gpio], R2]\n" // r3 = *(gpio + GPSET)
+    "B end\n"
+
+  "low:\n"
+    "LDR R3, [%[gpio], R1]\n" // r3 = *(gpio + GPCLR)
+    "B end\n"
+
+  "end:\n"
+    "MOV R3, R0\n"
+
+    : // no output
+    : [gpio] "r" (gpio)
+      , [pin] "r" (pin)
+      , [val] "r" (value)
+    : "r0", "r1", "r2, "cc" );
+
+  /* // Same code in C
   if ((pin & 0xFFFFFFC0) == 0) // sanity check
   {
     int clrOff, setOff;
@@ -76,21 +111,48 @@ void digitalWrite (uint32_t *gpio, int pin, int value) {
   } 
   else 
   { 
-    fprintf(stderr, "Not using on-board pins\n"); 
+    fprintf(stderr, "brother out here not using on-board pins frfr 💀💀💀\n"); 
     exit(1); 
-  }
+  } */
 }
 
 // adapted from setPinMode
-void pinMode(uint32_t *gpio, int pin, int mode) {
-  // This is in C, needs to converted to inline Assembler!!!
+void pinMode(uint32_t *gpio, int pin, int mode /*, int fSel, int shift */) {
+  asm(
+    "UDIV R0, %[pin], #10\n"  // r0 = pin/10
+    "MUL R1, R0, #10\n"      
+    "SUB R1, %[pin], R1\n"
+    "MUL R1, R1, #3\n"        // r1 = (pin%10) * 3
+    "MOV R2, #7\n"            // r2 = 0b111
+    "LDR R3, [%[gpio], R0]\n" // r3 = *(gpio + r0)
+    "LSL R2, R2, R1\n"        // r2 << r1
+    "BIC R2, R2\n"            // r2 = ~(r2)
+    "AND R3, R2\n"            // r3 & r2
+    "CMP %[mode], #1\n"
+    "BEQ output\n" // if mode = OUTPUT, go to "input" branch, else just leave the bits cleared
+    "B end\n"
+
+  "output:\n"
+    "MOV R2, #1\n"           // r2 = 0b001
+    "LSL R2, R2, R1\n"       // r2 << r1
+    "OR R3, R2\n"            // r3 | r2
+    
+  "end:\n"
+    : // no output
+    : [gpio] "r" (gpio)
+      , [pin] "r" (pin)
+      , [mode] "r" (mode)
+    : "r0", "r1", "r2, "r3", "cc" );
+      
+
+  /* // Same code in C 
   int fSel =  pin/10;
   int shift = (pin%10)*3;
   if(mode==OUTPUT){
     *(gpio + fSel) = (*(gpio + fSel) & ~(7 << shift)) | (1 << shift); // set bits to one = output
   } else{
     *(gpio + fSel) = (*(gpio + fSel) & ~(7 << shift)); // set bits to zero = input
-  }
+  } */
 }
 
 void writeLED(uint32_t *gpio, int led, int value) {
@@ -99,18 +161,51 @@ void writeLED(uint32_t *gpio, int led, int value) {
 }
 
 int readButton(uint32_t *gpio, int button) {
-  // This is in C, needs to converted to inline Assembler!!!
+  int result;
+  
+  asm(
+    "CMP %[button], #32\n"
+    "BLT less\n"
+    "MOV R0, #14\n" //GPLEV0
+    "B continue\n"
+  "less:\n"
+    "MOV R0, #13\n"
+  
+  "continue:\n"
+    "LDR R1, [%[gpio], R0]\n"
+    "MOV R2, #1\n"
+    "MOV R3, #31\n"
+    "AND R3, %[button]\n"
+    "LSL R2, R2, R3\n" //shift #1 (button & 31) to the left
+    "AND R2, R1\n"
+    "CMP R2, #0\n"
+    "BEQ low\n"
+    "MOV %[result], 1\n"
+    "B end:\n"
+
+  "low:\n"
+    "MOV %[result], 0\n"
+  
+  "end:\n"
+    : [result] "=r" (result)
+    : [gpio] "r" (gpio)
+      , [button] "r" (button)
+    : "r0", "r1", "r2, "cc" );
+
+  return res;
+
+  /* // Same code in C
   if(button<32){
     if ((*(gpio + 13 /* GPLEV0 */) & (1 << (button & 31))) != 0)
-      return HIGH;
-    else
-      return LOW;
+    return HIGH;
+  else
+    return LOW;
   } else{
-    if ((*(gpio + 14 /* GPLEV0 */) & (1 << (button & 31))) != 0)
-      return HIGH;
-    else
-      return LOW;
-  }
+  if ((*(gpio + 14 /* GPLEV0 */) & (1 << (button & 31))) != 0)
+    return HIGH;
+  else
+    return LOW;
+  } */
 }
 
 void waitForButton(uint32_t *gpio, int button) {
