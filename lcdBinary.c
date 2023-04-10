@@ -87,7 +87,7 @@ void digitalWrite (uint32_t *gpio, int pin, int value) {
     : [gpio] "r" (gpio)
       , [pin] "r" (pin)
       , [val] "r" (value)
-    : "r0", "r1", "r2, "cc" );
+    : "r0", "r1", "r2", "cc" );
 
   /* // Same code in C
   if ((pin & 0xFFFFFFC0) == 0) // sanity check
@@ -142,7 +142,7 @@ void pinMode(uint32_t *gpio, int pin, int mode /*, int fSel, int shift */) {
     : [gpio] "r" (gpio)
       , [pin] "r" (pin)
       , [mode] "r" (mode)
-    : "r0", "r1", "r2, "r3", "cc" );
+    : "r0", "r1", "r2", "r3", "cc" );
       
 
   /* // Same code in C 
@@ -190,18 +190,18 @@ int readButton(uint32_t *gpio, int button) {
     : [result] "=r" (result)
     : [gpio] "r" (gpio)
       , [button] "r" (button)
-    : "r0", "r1", "r2, "cc" );
+    : "r0", "r1", "r2", "cc" );
 
-  return res;
+  return result;
 
-  /* // Same code in C
+  /* Same code in C
   if(button<32){
-    if ((*(gpio + 13 /* GPLEV0 */) & (1 << (button & 31))) != 0)
+    if ((*(gpio + 13) & (1 << (button & 31))) != 0)
     return HIGH;
   else
     return LOW;
   } else{
-  if ((*(gpio + 14 /* GPLEV0 */) & (1 << (button & 31))) != 0)
+  if ((*(gpio + 14) & (1 << (button & 31))) != 0)
     return HIGH;
   else
     return LOW;
