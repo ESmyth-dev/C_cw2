@@ -987,7 +987,7 @@ int main (int argc, char *argv[])
       }
       blinkN(gpio,pin2LED2,1);
       blinkN(gpio,pinLED,buttonPresses);
-      guessSeq[i] = 0;
+      guessSeq[i] = buttonPresses;
       buttonPresses = 0;
     }
     matches = countMatches(theSeq,guessSeq);
@@ -996,7 +996,7 @@ int main (int argc, char *argv[])
     blinkN(gpio,pin2LED2,1);
     blinkN(gpio,pinLED,matches[1]);
     blinkN(gpio,pin2LED2,3);
-    snprintf(firstLine,16,"Exact %d",matches[0]);
+    snprintf(firstLine,16,"Exact: %d",matches[0]);
     snprintf(secondLine,16,"Approx: %d",matches[1]);
     lcdClear(lcd);
     lcdPosition(lcd, 0, 0) ; lcdPuts(lcd,firstLine);
